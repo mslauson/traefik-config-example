@@ -1,0 +1,51 @@
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    forwardedHeaders:
+      insecure: true
+    address: :443
+  ssh:
+    address: :2222
+#  mongo:
+#    address: :27017
+api:
+  dashboard: true
+certificatesResolvers:
+  le:
+    acme:
+      #change me to your cloud flare email
+      email: youremail@fake.com 
+      storage: acme.json
+
+      #This is currently set to staging.  Allows for a lot more errors to happen, but slower
+      #change to prd url when you have it working
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      dnsChallenge:
+        provider: "cloudflare"
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+providers:
+  file:
+    filename: tls.yaml
+    watch: true
+experimental:
+  plugins:
+    traefikxrequeststart:
+      moduleName: "github.com/EasySolutionsIO/traefikxrequeststart"
+      version: "v0.0.3"
+#tracing:
+#  zipkin:
+#    httpEndpoint: http://10.7.4.11:9411/api/v2/spans
+
+tracing:
+  jaeger:
+    samplingServerURL: http://10.7.4.90:5778/sampling
+    collector:
+      endpoint: http://10.7.4.90:14268/api/traces?format=jaeger.thrift
