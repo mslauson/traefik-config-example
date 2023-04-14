@@ -1,0 +1,27 @@
+version: '3'
+services:
+  traefik:
+    image: traefik:latest
+    command: --docker --docker.domain=example.com
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - web_zone
+    volumes:
+      - /run/docker.sock:/run/docker.sock
+      - ./traefik.yaml:/traefik.yaml
+      - ./tls.yaml:/tls.yaml
+      - ./acme.json:/acme.json
+      - ./logs:/logs
+    container_name: traefik-main
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+    environment:
+      #Your cloudflare email and password
+      CF_API_EMAIL: youremail@fake.com
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
+networks:
+  web_zone:
+    external: true

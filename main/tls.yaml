@@ -1,0 +1,41 @@
+http:
+  middlewares:
+    traefikxrequeststart-mw:
+      plugin:
+        traefikxrequeststart:
+          name: traefikxrequeststart
+    corsMw:
+      headers:
+        accessControlAllowHeaders:
+          - Content-Type
+          - Authorization
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+          - POST
+          - PATCH
+          - DELETE
+        # this will allow anything to connect.  change it to be more secure if you would like
+        accessControlAllowOriginList: '*'
+        accessControlMaxAge: 100
+        addVaryHeader: true
+  # Define your entry points here.  This will map to subdomains of your domain.  There are lots of ways to set up the rule. 
+  # I would recommend checking traefik documentation for all of the possabilites. This is a very simple example
+  routers:
+    exampleInternalServer:
+      rule: 'Host(`exampleInternalVm.example.com`)'
+        #match this name with the name defined in services below
+      service: exampleInternalVm
+      middlewares:
+        - corsMw
+        - traefikxrequeststart-mw
+      tls:
+       certResolver: le
+  # This is where you link with your other VM ips 
+  # T
+  services:
+    exampleInternalVm:
+      loadBalancer:
+        servers:
+          - url: 'http://10.7.4.102:8096/'
